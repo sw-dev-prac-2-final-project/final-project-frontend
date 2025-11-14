@@ -408,122 +408,124 @@ export default function RequestsPage() {
           )}
 
           <div className="mt-6 overflow-hidden rounded-2xl border border-slate-200">
-            <table className="min-w-full divide-y divide-slate-200">
-              <thead className="bg-neutral-color">
-                <tr className="text-left text-sm font-semibold text-primary-color-muted">
-                  <th className="px-6 py-4">Request ID</th>
-                  <th className="px-6 py-4">Product</th>
-                  <th className="px-6 py-4">Type</th>
-                  <th className="px-6 py-4 text-right">Amount</th>
-                  <th className="px-6 py-4">Requested By</th>
-                  <th className="px-6 py-4">Date</th>
-                  <th className="px-6 py-4 text-right">Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-200 bg-white text-sm text-primary-color-muted">
-                {isFetching && (
-                  <tr>
-                    <td colSpan={7} className="px-6 py-6">
-                      <div className="flex items-center justify-center gap-2 text-sm text-primary-color-muted">
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        Loading requests…
-                      </div>
-                    </td>
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[900px] divide-y divide-slate-200">
+                <thead className="bg-neutral-color">
+                  <tr className="text-left text-sm font-semibold text-primary-color-muted">
+                    <th className="px-6 py-4">Request ID</th>
+                    <th className="px-6 py-4">Product</th>
+                    <th className="px-6 py-4">Type</th>
+                    <th className="px-6 py-4 text-right">Amount</th>
+                    <th className="px-6 py-4">Requested By</th>
+                    <th className="px-6 py-4">Date</th>
+                    <th className="px-6 py-4 text-right">Action</th>
                   </tr>
-                )}
+                </thead>
+                <tbody className="divide-y divide-slate-200 bg-white text-sm text-primary-color-muted">
+                  {isFetching && (
+                    <tr>
+                      <td colSpan={7} className="px-6 py-6">
+                        <div className="flex items-center justify-center gap-2 text-sm text-primary-color-muted">
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Loading requests…
+                        </div>
+                      </td>
+                    </tr>
+                  )}
 
-                {!isFetching &&
-                  filteredRequests.map((record) => {
-                    const product =
-                      typeof record.product_id === "object"
-                        ? record.product_id
-                        : productLookup.get(record.product_id);
-                    const user =
-                      typeof record.user === "object"
-                        ? record.user
-                        : undefined;
-                    return (
-                      <tr
-                        key={record._id}
-                        className={clsx(
-                          "transition hover:bg-secondary-color-soft/60"
-                        )}
+                  {!isFetching &&
+                    filteredRequests.map((record) => {
+                      const product =
+                        typeof record.product_id === "object"
+                          ? record.product_id
+                          : productLookup.get(record.product_id);
+                      const user =
+                        typeof record.user === "object"
+                          ? record.user
+                          : undefined;
+                      return (
+                        <tr
+                          key={record._id}
+                          className={clsx(
+                            "transition hover:bg-secondary-color-soft/60"
+                          )}
+                        >
+                          <td className="px-6 py-4 font-medium text-primary-color">
+                            {record._id.slice(-6).toUpperCase()}
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="flex flex-col">
+                              <span className="font-medium text-primary-color">
+                                {product?.name ?? "Unknown product"}
+                              </span>
+                              <span className="text-xs text-primary-color-muted">
+                                {product?.sku}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <span
+                              className={clsx(
+                                "inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold",
+                                record.transactionType === "stockIn"
+                                  ? "bg-success-color/10 text-success-color"
+                                  : "bg-danger-color/10 text-danger-color"
+                              )}
+                            >
+                              {TRANSACTION_LABEL[record.transactionType]}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-right font-medium text-primary-color">
+                            {record.itemAmount}
+                          </td>
+                          <td className="px-6 py-4">
+                            {user?.name ?? "Staff Member"}
+                            <div className="text-xs text-primary-color-muted">
+                              {user?.email}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            {record.transactionDate
+                              ? new Date(record.transactionDate).toLocaleDateString()
+                              : "—"}
+                          </td>
+                          <td className="px-6 py-4 text-right">
+                            <div className="flex justify-end gap-2">
+                              <button
+                                type="button"
+                                onClick={() => openEditModal(record)}
+                                className="inline-flex items-center justify-center rounded-lg bg-secondary-color px-3 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-secondary-color/90"
+                              >
+                                Edit
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleDelete(record)}
+                                className="inline-flex items-center justify-center rounded-lg border border-danger-color/60 px-3 py-2 text-xs font-semibold text-danger-color transition hover:bg-danger-color/10"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+
+                  {!isFetching && filteredRequests.length === 0 && (
+                    <tr>
+                      <td
+                        colSpan={7}
+                        className="px-6 py-10 text-center text-sm text-primary-color-muted/70"
                       >
-                        <td className="px-6 py-4 font-medium text-primary-color">
-                          {record._id.slice(-6).toUpperCase()}
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="flex flex-col">
-                            <span className="font-medium text-primary-color">
-                              {product?.name ?? "Unknown product"}
-                            </span>
-                            <span className="text-xs text-primary-color-muted">
-                              {product?.sku}
-                            </span>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <span
-                            className={clsx(
-                              "inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold",
-                              record.transactionType === "stockIn"
-                                ? "bg-success-color/10 text-success-color"
-                                : "bg-danger-color/10 text-danger-color"
-                            )}
-                          >
-                            {TRANSACTION_LABEL[record.transactionType]}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 text-right font-medium text-primary-color">
-                          {record.itemAmount}
-                        </td>
-                        <td className="px-6 py-4">
-                          {user?.name ?? "Staff Member"}
-                          <div className="text-xs text-primary-color-muted">
-                            {user?.email}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          {record.transactionDate
-                            ? new Date(record.transactionDate).toLocaleDateString()
-                            : "—"}
-                        </td>
-                        <td className="px-6 py-4 text-right">
-                          <div className="flex justify-end gap-2">
-                            <button
-                              type="button"
-                              onClick={() => openEditModal(record)}
-                              className="inline-flex items-center justify-center rounded-lg bg-secondary-color px-3 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-secondary-color/90"
-                            >
-                              Edit
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => handleDelete(record)}
-                              className="inline-flex items-center justify-center rounded-lg border border-danger-color/60 px-3 py-2 text-xs font-semibold text-danger-color transition hover:bg-danger-color/10"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-
-                {!isFetching && filteredRequests.length === 0 && (
-                  <tr>
-                    <td
-                      colSpan={7}
-                      className="px-6 py-10 text-center text-sm text-primary-color-muted/70"
-                    >
-                      {requests.length === 0
-                        ? "No requests available yet."
-                        : "No requests match your current filters."}
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                        {requests.length === 0
+                          ? "No requests available yet."
+                          : "No requests match your current filters."}
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         </section>
       </div>
