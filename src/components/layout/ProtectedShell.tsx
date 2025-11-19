@@ -1,7 +1,7 @@
 "use client";
 
 import { ReactNode, useEffect, useMemo } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Loader2 } from "lucide-react";
 import Sidebar from "@/components/sidebar/Sidebar";
@@ -14,15 +14,14 @@ export default function ProtectedShell({ children }: ProtectedShellProps) {
   const { status } = useSession();
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
 
   const callbackUrl = useMemo(() => {
     if (!pathname) {
       return "/";
     }
-    const query = searchParams?.toString();
-    return query ? `${pathname}?${query}` : pathname;
-  }, [pathname, searchParams]);
+    const search = typeof window === "undefined" ? "" : window.location.search;
+    return search ? `${pathname}${search}` : pathname;
+  }, [pathname]);
 
   useEffect(() => {
     if (status !== "unauthenticated") {

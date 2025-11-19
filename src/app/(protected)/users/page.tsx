@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useSession } from "next-auth/react";
 import DashboardToolbar from "@/components/dashboard/DashboardToolbar";
 import { apiFetch } from "@/lib/api/client";
@@ -8,11 +8,7 @@ import type {
   UserDirectoryEntry,
   UserDirectoryResponse,
 } from "@/lib/api/types";
-import {
-  USER_ROLE_LABEL,
-  USER_ROLES,
-  type UserRole,
-} from "@/lib/users";
+import { USER_ROLE_LABEL, USER_ROLES, type UserRole } from "@/lib/users";
 import clsx from "clsx";
 import {
   AlertCircle,
@@ -49,8 +45,7 @@ const ROLE_FILTER_LABEL: Record<RoleFilter, string> = {
 };
 
 const ROLE_BADGE_STYLES: Record<UserRole, string> = {
-  admin:
-    "bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-100",
+  admin: "bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-100",
   staff:
     "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-200",
 };
@@ -108,8 +103,7 @@ export default function UsersPage() {
   const role = (session?.user?.role?.toString().toLowerCase() ??
     "staff") as UserRole;
   const isAdmin = role === "admin";
-  const showDirectoryControls =
-    sessionStatus === "authenticated" && isAdmin;
+  const showDirectoryControls = sessionStatus === "authenticated" && isAdmin;
 
   useEffect(() => {
     if (sessionStatus === "authenticated" && !isAdmin) {
@@ -162,10 +156,9 @@ export default function UsersPage() {
 
         const roleSummary: Partial<Record<UserRole, number>> = {};
         USER_ROLES.forEach((roleKey) => {
-          const raw =
-            (response.roleSummary as Record<string, unknown> | undefined)?.[
-              roleKey
-            ];
+          const raw = (
+            response.roleSummary as Record<string, unknown> | undefined
+          )?.[roleKey];
           roleSummary[roleKey] = toNumber(raw);
         });
 
@@ -228,9 +221,7 @@ export default function UsersPage() {
         : false;
       const matchesRequestCount =
         typeof user.requestSummary?.totalRequests === "number"
-          ? user.requestSummary.totalRequests
-              .toString()
-              .includes(trimmedQuery)
+          ? user.requestSummary.totalRequests.toString().includes(trimmedQuery)
           : false;
       return (
         matchesName ||
@@ -281,9 +272,7 @@ export default function UsersPage() {
         id: "requests",
         label: "Stock Movements",
         value: formatCount(totalRequests),
-        subLabel: `In ${formatCount(stockIn)} • Out ${formatCount(
-          stockOut
-        )}`,
+        subLabel: `In ${formatCount(stockIn)} • Out ${formatCount(stockOut)}`,
         icon: RefreshCcw,
       },
     ];
@@ -298,7 +287,7 @@ export default function UsersPage() {
     setQuery("");
   };
 
-  let bodyContent: JSX.Element | null = null;
+  let bodyContent: ReactNode = null;
 
   if (sessionStatus === "loading") {
     bodyContent = (
